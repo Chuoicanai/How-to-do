@@ -1,0 +1,51 @@
+This article answers common questions such as “How to set default boot kernel in linux?”, “How to change the default boot entry for kernel?”, “How to boot with old kernel version?” and “How to revert to previous kernel version?”.
+
+GRUB2 is the version of GRUB currently in use, at the time of publishing this article. The software was rewritten to allow plugins and expand features available in the menu system. GRUB legacy and GRUB2 are otherwise fairly similar.
+
+Let’s continue on how you can easily change the default kernel in GRUB on your Linux RHEL or CentOS 7 Server.
+
+The boot configuration when using GRUB 2 is in the /boot/grub2/grub.cfg file.
+ You can also refer to it by the /etc/grub2.cfg file which is a symbolic link.
+ To force a system to always use a particular menu entry and to set default boot kernel,
+ use the menu entry name as the key to the GRUB_DEFAULT directive in the /etc/default/grub file.
+
+Step 1. Get list of installed kernels
+
+awk -F\' /^menuentry/{print\$2} /etc/grub2.cfg
+
+Output:
+
+[root@proxyweb ~]# awk -F\' /^menuentry/{print\$2} /etc/grub2.cfg
+CentOS Linux (3.10.0-1160.105.1.el7.x86_64) 7 (Core)
+CentOS Linux (3.10.0-1160.88.1.el7.x86_64) 7 (Core)
+CentOS Linux (3.10.0-862.el7.x86_64) 7 (Core)
+CentOS Linux (0-rescue-b071754f79524fa2a169d695cb3db50d) 7 (Core)
+
+
+Step 2. Set a default kernel
+
+grub2-set-default 1
+
+Step 3. Verify new default kernel
+
+# cat /boot/grub2/grubenv | grep saved
+
+Output:
+
+saved_entry=1
+
+Step 4. Rebuild GRUB Config File
+
+BIOS-based:
+
+grub2-mkconfig -o /boot/grub2/grub.cfg
+
+UEFI-based:
+
+grub2-mkconfig -o /boot/efi/EFI/redhat/grub.cfg
+
+Step 4. Reboot Server
+
+All done! You can now reboot your Linux Server to have it booted with your new default kernel.
+
+shutdown -r now
